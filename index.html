@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可愛稻田數字遊戲 (Cute Rice Field Number Game)</title>
+    <style>
+        :root {
+            --primary-color: #e5855e;
+            --secondary-color: #f0a07b;
+            --light-color: #FFF6E9;
+            --accent-color: #f7c5a8;
+            --text-color: #7d4b33;
+            --grid-size: 80px;
+        }
+
+        @media (max-width: 600px) {
+            :root {
+                --grid-size: 55px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            :root {
+                --grid-size: 45px;
+            }
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background-color: #FFF6E9;
+            background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 0h2v20H9V0zm25.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm-20 20l1.732 1-10 17.32-1.732-1 10-17.32zM58.16 4.134l1 1.732-17.32 10-1-1.732 17.32-10zm-40 40l1 1.732-17.32 10-1-1.732 17.32-10zM80 9v2H60V9h20zM20 69v2H0v-2h20zm79.32-55l-1 1.732-17.32-10L82 4l17.32 10zm-80 80l-1 1.732-17.32-10L2 84l17.32 10zm96.546-75.84l-1.732 1-10-17.32 1.732-1 10 17.32zm-100 100l-1.732 1-10-17.32 1.732-1 10 17.32zM38.16 24.134l1 1.732-17.32 10-1-1.732 17.32-10zM60 29v2H40v-2h20zm19.32 5l-1 1.732-17.32-10L62 24l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM111 40h-2V20h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zM40 49v2H20v-2h20zm19.32 5l-1 1.732-17.32-10L42 44l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM91 60h-2V40h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM39.32 74l-1 1.732-17.32-10L22 64l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM71 80h-2V60h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM120 89v2h-20v-2h20zm-84.134 9.16l-1.732 1-10-17.32 1.732-1 10 17.32zM51 100h-2V80h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM100 109v2H80v-2h20zm19.32 5l-1 1.732-17.32-10 1-1.732 17.32 10zM31 120h-2v-20h2v20z' fill='%23f3d3c3' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .game-container {
+            background-color: var(--light-color);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 3px dashed #f5c8b0;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 500px) {
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+        }
+
+        button:hover {
+            background-color: #f97c51;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        button.active {
+            background-color: #d16544;
+            font-weight: bold;
+        }
+
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--accent-color);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            font-weight: bold;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.5), 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .info-item {
+            flex: 1;
+            min-width: 90px;
+            position: relative;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 10px;
+            margin: 20px 0;
+        }
+
+        .cell {
+            width: var(--grid-size);
+            height: var(--grid-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #FFE9D6;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 2px solid #f5c8b0;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+
+        .cell::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20zm20-20h20v20H20V0z' fill='%23f7d6c3' fill-opacity='0.3' fill-rule='evenodd'/%3E%3C/svg%3E");
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        .cell span {
+            position: relative;
+            z-index: 1;
+            color: #7d4b33;
+        }
+
+        .cell:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .cell.correct {
+            background-color: #D5ECC2;
+            color: #48742C;
+            border-color: #ACD278;
+            transform: scale(0.9);
+            opacity: 0.8;
+        }
+
+        .scores-container {
+            background-color: var(--light-color);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border: 3px dashed #f5c8b0;
+        }
+
+        .scores-title {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-align: left;
+        }
+
+        .best-score {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            text-align: left;
+            padding: 10px;
+            background-color: #FFF0E0;
+            border-radius: 10px;
+        }
+
+        .recent-scores {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            background-color: #FFF0E0;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .score-date {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.7rem;
+            }
+            
+            .info-panel {
+                font-size: 0.9rem;
+            }
+            
+            .cell {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Game completion animation */
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .celebrate {
+            animation: celebrate 0.5s ease-in-out;
+        }
+
+        /* 數字重排動畫 */
+        @keyframes shuffle {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); background-color: #ffcdb2; }
+            100% { transform: scale(1); }
+        }
+
+        .shuffled {
+            animation: shuffle 0.5s ease-in-out;
+        }
+
+        /* 完成遊戲動畫 */
+        @keyframes complete {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); background-color: #FFC3BA; }
+            100% { transform: scale(0.9); opacity: 0.8; background-color: #D5ECC2; }
+        }
+
+        .complete-animation {
+            animation: complete 1s ease-in-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>可愛稻田數字遊戲</h1>
+        <p class="subtitle">Cute Rice Field Number Game</p>
+        
+        <div class="game-container">
+            <div class="controls">
+                <div class="button-group">
+                    <button id="easyBtn" class="active">簡單版 (Easy)</button>
+                    <button id="hardBtn">困難版 (Hard)</button>
+                </div>
+                <button id="startBtn">開始遊戲 (Start)</button>
+            </div>
+            
+            <div class="info-panel">
+                <div class="info-item">
+                    <div>模式 (Mode):</div>
+                    <div id="modeDisplay">簡單 (Easy)</div>
+                </div>
+                <div class="info-item">
+                    <div>下一個 (Next):</div>
+                    <div id="nextNumber">1</div>
+                </div>
+                <div class="info-item">
+                    <div>時間 (Time):</div>
+                    <div id="time">0.0 s</div>
+                </div>
+            </div>
+            
+            <div class="grid" id="grid"></div>
+            
+            <div class="rules-container">
+                <div class="rules-box">
+                    <div class="rules-title">遊戲規則 (Game Rules)</div>
+                    <div class="rules-content" id="rulesContent">
+                        <p class="mode-header">簡單版 (Easy Mode):</p>
+                        <ul>
+                            <li>尋找並點擊數字 1-25，需要按照順序點擊</li>
+                            <li>時間從點擊第一個數字開始計算</li>
+                            <li>用最短的時間完成所有數字點擊</li>
+                        </ul>
+                        
+                        <p class="mode-header">困難版 (Hard Mode):</p>
+                        <ul>
+                            <li>尋找並點擊數字 3, 6, 9, 12... 到 75，需要按照順序點擊</li>
+                            <li>每隔幾秒鐘，未點擊的數字會重新排列位置</li>
+                            <li>挑戰更高難度，測試你的反應和專注力</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scores-container">
+            <h3 class="scores-title">遊戲紀錄 (Game Records)</h3>
+            
+            <div class="mode-records">
+                <div class="mode-title">簡單版 (Easy Mode)</div>
+                <div class="best-score">
+                    <div>最佳紀錄 (Best Record):</div>
+                    <div id="easyBestScore">--</div>
+                </div>
+                
+                <div class="recent-scores" id="easyRecentScores">
+                    <div class="score-item">
+                        <div>尚無紀錄 (No records yet)</div>
+                        <div>--</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mode-records">
+                <div class="mode-title">困難版 (Hard Mode)</div>
+                <div class="best-score">
+                    <div>最佳紀錄 (Best Record):</div>
+                    <div id="hardBestScore">--</div>
+                </div>
+                
+                <div class="recent-scores" id="hardRecentScores">
+                    <div class="score-item">
+                        <div>尚無紀錄 (No records yet)</div>
+                        <div>--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM 元素
+        const grid = document.getElementById('grid');
+        const startBtn = document.getElementById('startBtn');
+        const easyBtn = document.getElementById('easyBtn');
+        const hardBtn = document.getElementById('hardBtn');
+        const timeDisplay = document.getElementById('time');
+        const nextNumberDisplay = document.getElementById('nextNumber');
+        const modeDisplay = document.getElementById('modeDisplay');
+        const bestScoreDisplay = document.getElementById('bestScore');
+        const recentScoresContainer = document.getElementById('recentScores');
+        
+        // 遊戲變數
+        let numbers = [];
+        let currentNumber = 1;
+        let startTime = 0;
+        let timerInterval;
+        let gameStarted = false;
+        let isHardMode = false;
+        let maxNumber = 25;
+        let hardModeShuffleTimer = null;
+        
+        // 從localStorage加載遊戲記錄
+        let gameRecords;
+        try {
+            gameRecords = JSON.parse(localStorage.getItem('riceFieldGameRecords')) || {
+                easy: {
+                    best: null,
+                    recent: []
+                },
+                hard: {
+                    best: null,
+                    recent: []
+                }
+            };
+        } catch (error) {
+            // 如果解析出現錯誤，重置記錄
+            gameRecords = {
+                easy: {
+                    best: null,
+                    recent: []
+                },
+                hard: {
+                    best: null,
+                    recent: []
+                }
+            };
+        }
+        
+        // 初始化遊戲
+        function initGame() {
+            // 停止之前的計時器
+            if (hardModeShuffleTimer) {
+                clearTimeout(hardModeShuffleTimer);
+                hardModeShuffleTimer = null;
+            }
+            
+            // 清除網格
+            grid.innerHTML = '';
+            
+            // 重置變數
+            currentNumber = 1;
+            timeDisplay.textContent = '0.0 s';
+            
+            // 創建數字陣列
+            if (isHardMode) {
+                // 困難模式: 3, 6, 9, 12...到75
+                numbers = Array.from({length: 25}, (_, i) => (i + 1) * 3);
+                nextNumberDisplay.textContent = '3';
+            } else {
+                // 簡單模式: 1到25
+                numbers = Array.from({length: 25}, (_, i) => i + 1);
+                nextNumberDisplay.textContent = '1';
+            }
+            
+            // 隨機排列數字
+            shuffleArray(numbers);
+            
+            // 創建網格
+            for (let i = 0; i < maxNumber; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                
+                const numberSpan = document.createElement('span');
+                numberSpan.textContent = numbers[i];
+                
+                cell.appendChild(numberSpan);
+                cell.dataset.number = numbers[i];
+                cell.addEventListener('click', handleCellClick);
+                grid.appendChild(cell);
+            }
+            
+            // 重置遊戲狀態
+            clearInterval(timerInterval);
+            gameStarted = false;
+            
+            // 更新模式顯示
+            updateModeDisplay();
+        }
+        
+        // 更新模式顯示
+        function updateModeDisplay() {
+            if (isHardMode) {
+                modeDisplay.textContent = '困難 (Hard)';
+                easyBtn.classList.remove('active');
+                hardBtn.classList.add('active');
+            } else {
+                modeDisplay.textContent = '簡單 (Easy)';
+                easyBtn.classList.add('active');
+                hardBtn.classList.remove('active');
+            }
+        }
+        
+        // 隨機排列數組函數
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // 處理單元格點擊
+        function handleCellClick(e) {
+            const cell = e.currentTarget;
+            const clickedNumber = parseInt(cell.dataset.number);
+            
+            // 判斷下一個要點擊的數字
+            let nextNum;
+            if (isHardMode) {
+                nextNum = currentNumber * 3;
+            } else {
+                nextNum = currentNumber;
+            }
+            
+            // 檢查是否是正確的下一個數字
+            if (clickedNumber === nextNum) {
+                // 如果是第一次點擊，開始計時
+                if (!gameStarted) {
+                    startTimer();
+                    gameStarted = true;
+                    
+                    // 如果是困難模式，設置數字重排計時器
+                    if (isHardMode) {
+                        scheduleHardModeShuffle();
+                    }
+                }
+                
+                // 標記為已完成
+                cell.classList.add('correct');
+                
+                // 增加當前數字索引
+                currentNumber++;
+                
+                // 更新下一個要點擊的數字顯示
+                if (currentNumber <= 25) {
+                    if (isHardMode) {
+                        nextNumberDisplay.textContent = currentNumber * 3;
+                    } else {
+                        nextNumberDisplay.textContent = currentNumber;
+                    }
+                } else {
+                    // 遊戲完成
+                    completeGame();
+                }
+            }
+        }
+        
+        // 困難模式：設置數字重排計時器
+        function scheduleHardModeShuffle() {
+            if (hardModeShuffleTimer) {
+                clearTimeout(hardModeShuffleTimer);
+            }
+            
+            hardModeShuffleTimer = setTimeout(() => {
+                if (gameStarted) {
+                    shuffleRemainingNumbers();
+                    // 再次設置計時器
+                    scheduleHardModeShuffle();
+                }
+            }, 8000); // 每8秒重排一次
+        }
+        
+        // 困難模式：重排剩餘數字
+        function shuffleRemainingNumbers() {
+            // 取得所有未點擊的單元格
+            const unclickedCells = Array.from(document.querySelectorAll('.cell:not(.correct)'));
+            
+            if (unclickedCells.length > 1 && gameStarted) {
+                // 取得其值
+                const remainingNumbers = unclickedCells.map(cell => parseInt(cell.dataset.number));
+                
+                // 洗牌
+                shuffleArray(remainingNumbers);
+                
+                // 重新分配
+                unclickedCells.forEach((cell, index) => {
+                    cell.dataset.number = remainingNumbers[index];
+                    const numberSpan = cell.querySelector('span');
+                    numberSpan.textContent = remainingNumbers[index];
+                    
+                    // 添加視覺效果
+                    cell.classList.add('shuffled');
+                    setTimeout(() => {
+                        cell.classList.remove('shuffled');
+                    }, 500);
+                });
+            }
+        }
+        
+        // 開始計時器
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 100);
+        }
+        
+        // 更新計時器
+        function updateTimer() {
+            const elapsedTime = (Date.now() - startTime) / 1000;
+            timeDisplay.textContent = elapsedTime.toFixed(1) + ' s';
+        }
+        
+        // 遊戲完成
+        function completeGame() {
+            // 停止計時
+            clearInterval(timerInterval);
+            
+            // 停止困難模式計時器
+            if (hardModeShuffleTimer) {
+                clearTimeout(hardModeShuffleTimer);
+                hardModeShuffleTimer = null;
+            }
+            
+            // 更新顯示
+            nextNumberDisplay.textContent = '完成!';
+            
+            const finalTime = (Date.now() - startTime) / 1000;
+            timeDisplay.textContent = finalTime.toFixed(1) + ' s';
+            
+            // 儲存分數
+            saveScore(finalTime);
+            
+            // 更新顯示
+            updateScoreDisplay();
+            
+            // 添加慶祝動畫
+            const gameContainer = document.querySelector('.game-container');
+            gameContainer.classList.add('celebrate');
+            
+            // 添加完成遊戲的效果
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                setTimeout(() => {
+                    cell.classList.add('complete-animation');
+                }, index * 40);
+            });
+            
+            setTimeout(() => {
+                gameContainer.classList.remove('celebrate');
+            }, 1000);
+            
+            // 遊戲結束
+            gameStarted = false;
+        }
+        
+        // 保存分數
+        function saveScore(time) {
+            const mode = isHardMode ? 'hard' : 'easy';
+            const currentDate = new Date().toLocaleDateString();
+            
+            // 添加到最近分數
+            gameRecords[mode].recent.unshift({
+                time: time.toFixed(1),
+                date: currentDate
+            });
+            
+            // 保持最近分數只有2個
+            if (gameRecords[mode].recent.length > 2) {
+                gameRecords[mode].recent.pop();
+            }
+            
+            // 更新最佳分數
+            if (gameRecords[mode].best === null || time < gameRecords[mode].best) {
+                gameRecords[mode].best = time.toFixed(1);
+            }
+            
+            // 保存到localStorage
+            try {
+                localStorage.setItem('riceFieldGameRecords', JSON.stringify(gameRecords));
+            } catch (error) {
+                console.error('無法保存遊戲記錄', error);
+            }
+        }
+        
+        // 更新分數顯示
+        function updateScoreDisplay() {
+            // 更新簡單模式分數
+            const easyBestScore = document.getElementById('easyBestScore');
+            easyBestScore.textContent = gameRecords.easy.best !== null 
+                ? gameRecords.easy.best + ' 秒 (seconds)' 
+                : '--';
+            
+            const easyRecentScores = document.getElementById('easyRecentScores');
+            easyRecentScores.innerHTML = '';
+            
+            if (gameRecords.easy.recent.length === 0) {
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'score-item';
+                scoreItem.innerHTML = `
+                    <div>尚無紀錄 (No records yet)</div>
+                    <div>--</div>
+                `;
+                easyRecentScores.appendChild(scoreItem);
+            } else {
+                // 只顯示最多2個簡單模式記錄
+                const recordsToShow = gameRecords.easy.recent.slice(0, 2);
+                recordsToShow.forEach((record, index) => {
+                    const scoreItem = document.createElement('div');
+                    scoreItem.className = 'score-item';
+                    scoreItem.innerHTML = `
+                        <div>
+                            #${index + 1} 
+                            <span class="score-date">${record.date}</span>
+                        </div>
+                        <div>${record.time} 秒 (s)</div>
+                    `;
+                    easyRecentScores.appendChild(scoreItem);
+                });
+            }
+            
+            // 更新困難模式分數
+            const hardBestScore = document.getElementById('hardBestScore');
+            hardBestScore.textContent = gameRecords.hard.best !== null 
+                ? gameRecords.hard.best + ' 秒 (seconds)' 
+                : '--';
+            
+            const hardRecentScores = document.getElementById('hardRecentScores');
+            hardRecentScores.innerHTML = '';
+            
+            if (gameRecords.hard.recent.length === 0) {
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'score-item';
+                scoreItem.innerHTML = `
+                    <div>尚無紀錄 (No records yet)</div>
+                    <div>--</div>
+                `;
+                hardRecentScores.appendChild(scoreItem);
+            } else {
+                // 只顯示最多2個困難模式記錄
+                const recordsToShow = gameRecords.hard.recent.slice(0, 2);
+                recordsToShow.forEach((record, index) => {
+                    const scoreItem = document.createElement('div');
+                    scoreItem.className = 'score-item';
+                    scoreItem.innerHTML = `
+                        <div>
+                            #${index + 1} 
+                            <span class="score-date">${record.date}</span>
+                        </div>
+                        <div>${record.time} 秒 (s)</div>
+                    `;
+                    hardRecentScores.appendChild(scoreItem);
+                });
+            }
+        }
+        
+        // 更換遊戲模式
+        function changeGameMode(isHard) {
+            if (isHard !== isHardMode) {
+                isHardMode = isHard;
+                initGame();
+                updateScoreDisplay();
+            }
+        }
+        
+        // 事件監聽器
+        startBtn.addEventListener('click', initGame);
+        easyBtn.addEventListener('click', () => changeGameMode(false));
+        hardBtn.addEventListener('click', () => changeGameMode(true));
+        
+        // 初始化遊戲並顯示分數
+        initGame();
+        updateScoreDisplay();
+    </script>
+</body>
+</html>
